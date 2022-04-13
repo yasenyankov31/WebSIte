@@ -1,0 +1,114 @@
+﻿@model WebApplication1.Models.ViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>SelfTaugthEvent</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.SelfTaugthEvent.EventName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SelfTaugthEvent.EventName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SelfTaugthEvent.ImagePath)
+        </dt>
+
+        <dd>
+            <img src="@Model.SelfTaugthEvent.ImagePath" />
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SelfTaugthEvent.Description)
+        </dt>
+
+        <dd>
+            @Html.Raw(Model.SelfTaugthEvent.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SelfTaugthEvent.Date)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SelfTaugthEvent.Date)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SelfTaugthEvent.Activity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SelfTaugthEvent.Activity)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SelfTaugthEvent.Street)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SelfTaugthEvent.Street)
+        </dd>
+
+    </dl>
+</div>
+<div class="review-list">
+    @foreach (var item in Model.Comment)
+    {
+        <ul>
+            <li>
+                <div class="d-flex" style="background-color: gainsboro;">
+                    <div class="right">
+                        <h3>
+                            User :@item.Username
+                        </h3>
+                        <div class="review-description">
+                            <p>
+                                @item.Comments
+                            </p>
+                        </div>
+                        <span class="publish py-3 d-inline-block w-100">Published in @item.Date</span>
+                    </div>
+                </div>
+                @if (User.Identity.Name == item.Username || User.IsInRole("Admin") || User.IsInRole("Coadmin"))
+                {
+                    using (Html.BeginForm("Delete", "Comments", new { id = @item.Id }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("EventId", (object)Model.SelfTaugthEvent.Id)
+                        @Html.Hidden("EventName", (object)Model.SelfTaugthEvent.GetType().Name)
+
+                        <input type="submit" name="name" value="Delete" />
+
+                    }
+                }
+
+            </li>
+        </ul>
+    }
+</div>
+
+
+@using (Html.BeginForm("Create", "Comments", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("Username", (object)User.Identity.Name)
+    @Html.Hidden("EventId", (object)Model.SelfTaugthEvent.Id)
+    @Html.Hidden("EventName", (object)Model.SelfTaugthEvent.GetType().Name)
+
+    <textarea class="txtarea" name="comment"></textarea>
+    <input type="submit" class="center-block" name="name" value="Post Comment" />
+
+}
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.SelfTaugthEvent.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
