@@ -11,18 +11,26 @@ namespace WebApplication1.Models
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Web;
 
     public class CultureEvent
     {
         public int Id { get; set; }
+        [Required]
         public string EventName { get; set; }
         public string ImagePath { get; set; }
+        [Required]
         public string Description { get; set; }
+        [Required]
         public DateTime Date { get; set; }
+        [Required]
         public string PhoneNumber { get; set; }
+        [Required]
         public string EMail { get; set; }
+        [Required]
         public string Organizer { get; set; }
+        [Required]
         public string Street { get; set; }
 
         public string Creator { get; set; }

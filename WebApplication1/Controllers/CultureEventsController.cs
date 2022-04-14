@@ -66,14 +66,23 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid)
             {
-                string fileName = Path.GetFileNameWithoutExtension(ImageFile.FileName);
-                string extension = Path.GetExtension(ImageFile.FileName);
-                fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                cultureEvent.ImagePath = "/Image/" + fileName;
+                if (ImageFile!=null)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(ImageFile.FileName);
+                    string extension = Path.GetExtension(ImageFile.FileName);
+                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+                    cultureEvent.ImagePath = "/Image/" + fileName;
+                    fileName = Path.Combine(Server.MapPath("~/Image/"), fileName);
+                    ImageFile.SaveAs(fileName);
+                }
+                else
+                {
+                    cultureEvent.ImagePath = "/Image/default.jpg";
+                }
+
+
                 cultureEvent.Date = date;
                 cultureEvent.Creator = ControllerContext.HttpContext.User.Identity.Name;
-                fileName = Path.Combine(Server.MapPath("~/Image/"), fileName);
-                ImageFile.SaveAs(fileName);
                 db.CultureEvent.Add(cultureEvent);
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");

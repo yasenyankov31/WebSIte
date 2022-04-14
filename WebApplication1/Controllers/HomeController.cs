@@ -50,7 +50,7 @@ namespace WebApplication1.Controllers
 
             foreach (var item in users)
             {
-                if (!db.Users.ToList().Any(x => x == item))
+                if (!db.Users.Where(x => x.Username == item.Username&&x.Password==item.Password).Any())
                 {
                     db.Users.Add(item);
                 }
@@ -66,9 +66,9 @@ namespace WebApplication1.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(Users model)
+        public ActionResult Register(Users model,string confirmpassword)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid&&model.Password==confirmpassword)
             {
                 model.Role = Models.Rolesenum.User;
                 db.Users.Add(model);

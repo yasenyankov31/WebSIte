@@ -59,14 +59,23 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid)
             {
-                string fileName = Path.GetFileNameWithoutExtension(ImageFile.FileName);
-                string extension = Path.GetExtension(ImageFile.FileName);
-                fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                tourism.ImagePath = "/Image/" + fileName;
+                if (ImageFile!=null)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(ImageFile.FileName);
+                    string extension = Path.GetExtension(ImageFile.FileName);
+                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+                    tourism.ImagePath = "/Image/" + fileName;
+                    fileName = Path.Combine(Server.MapPath("~/Image/"), fileName);
+                    ImageFile.SaveAs(fileName);
+                }
+                else
+                {
+                    tourism.ImagePath = "/Image/default.jpg";
+                }
+
                 tourism.Date = date;
                 tourism.Creator = ControllerContext.HttpContext.User.Identity.Name;
-                fileName = Path.Combine(Server.MapPath("~/Image/"), fileName);
-                ImageFile.SaveAs(fileName);
+
                 db.Tourism.Add(tourism);
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");

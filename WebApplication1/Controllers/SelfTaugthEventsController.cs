@@ -66,16 +66,23 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (ImageFile!=null)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(ImageFile.FileName);
+                    string extension = Path.GetExtension(ImageFile.FileName);
+                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+                    selfTaugthEvent.ImagePath = "/Image/" + fileName;
+                    fileName = Path.Combine(Server.MapPath("~/Image/"), fileName);
+                    ImageFile.SaveAs(fileName);
+                }
+                else
+                {
+                    selfTaugthEvent.ImagePath = "/Image/default.jpg";
+                }
 
-                string fileName = Path.GetFileNameWithoutExtension(ImageFile.FileName);
-                string extension = Path.GetExtension(ImageFile.FileName);
-                fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                selfTaugthEvent.ImagePath = "/Image/" + fileName;
                 selfTaugthEvent.Date = date;
                 selfTaugthEvent.Description = description;
                 selfTaugthEvent.Creator = ControllerContext.HttpContext.User.Identity.Name;
-                fileName = Path.Combine(Server.MapPath("~/Image/"), fileName);
-                ImageFile.SaveAs(fileName);
                 db.SelfTaugthEvent.Add(selfTaugthEvent);
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");
