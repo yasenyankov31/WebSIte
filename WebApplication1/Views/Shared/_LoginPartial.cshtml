@@ -7,16 +7,16 @@
 
         <ul class="nav navbar-nav navbar-right">
             <li>
-                @Html.ActionLink("Hello " + User.Identity.Name + "!", null, null, routeValues: null, htmlAttributes: new { title = "Manage" })
+                @Html.ActionLink("Hello " + User.Identity.Name + "!", null, null, new { @class = "dropdown-item" })
             </li>
-            <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+            <li><a class = "dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
         </ul>
     }
 }
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("Login", "Login", "Home")</li>
-        <li>@Html.ActionLink("Register", "Register", "Home")</li>
+        <li>@Html.ActionLink("Login", "Login", "Home", null, new { @class = "dropdown-item" })</li>
+        <li>@Html.ActionLink("Register", "Register", "Home", null, new { @class = "dropdown-item" })</li>
     </ul>
 }
