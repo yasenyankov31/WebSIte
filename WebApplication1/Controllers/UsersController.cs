@@ -100,30 +100,20 @@ namespace WebApplication1.Controllers
             return View(users);
         }
 
-        // GET: Users/Delete/5
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Delete(int? id)
+        // POST: SportEvents/Delete/
+        [Authorize]
+        public async Task<ActionResult> Delete(string ids)
         {
-            if (id == null)
+            List<string> idss = ids.Split(',').ToList();
+            for (int i = 0; i < idss.Count - 1; i++)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                Users user = await db.Users.FindAsync(Convert.ToInt32(idss.ElementAt(i)));
+                foreach (var item in await db.Comment.Where(x => x.EventId == user.Id).ToListAsync())
+                {
+                    db.Comment.Remove(item);
+                }
+                db.Users.Remove(user);
             }
-            Users users = await db.Users.FindAsync(id);
-            if (users == null)
-            {
-                return HttpNotFound();
-            }
-            return View(users);
-        }
-
-        // POST: Users/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> DeleteConfirmed(int id)
-        {
-            Users users = await db.Users.FindAsync(id);
-            db.Users.Remove(users);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }

@@ -7,37 +7,54 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Self-taught events</h2>
+<h3>@TempData["Message"]</h3>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.First().EventName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.First().ImagePath)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.First().Description)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.First().Date)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.First().Activity)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.First().Street)
-        </th>
-        <th></th>
-    </tr>
+<div class="row util">
+    <div class="col-sm">
+        @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-info" })
+    </div>
+    <div class="col-sm">
+        @Html.ActionLink("Delete", "Delete", new { ids = "{0}" }, new { @class = "btn btn-danger" })
+    </div>
 
-    @foreach (var item in Model)
-    {
+</div>
+<table id="table"
+       data-toggle="table"
+       data-height="460"
+       data-click-to-select="true">
+    <thead>
         <tr>
+            <th data-field="state" data-checkbox="true"></th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().EventName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().ImagePath)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Activity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Street)
+            </th>
+            <th>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+        <tr id="@item.Id">
+            <td>
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.EventName)
             </td>
@@ -45,7 +62,7 @@
                 <img src="@item.ImagePath" alt="Image" width="100" height="50" />
             </td>
             <td>
-                @Regex.Replace(@Regex.Replace(item.Description, @"<[^>]+>|&nbsp;", String.Empty).Trim(), @"\s{2,}", String.Empty).Substring(0, 5) .....
+                @Regex.Replace(@Regex.Replace(item.Description, @"<[^>]+>|&nbsp;", String.Empty).Trim(), @"\s{2,}", String.Empty).Substring(0, @Convert.ToInt32(@Regex.Replace(item.Description, @"<[^>]+>|&nbsp;", String.Empty).Trim().Length / 2)) .....
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Date)
@@ -57,18 +74,21 @@
                 @Html.DisplayFor(modelItem => item.Street)
             </td>
             <td>
-                @if (User.Identity.Name == item.Creator || User.IsInRole("Admin") || User.IsInRole("Coadmin"))
-                {
-                    @Html.ActionLink("Edit |", "Edit", new { id = item.Id }) 
-
-                    @Html.ActionLink("Delete |", "Delete", new { id = item.Id })
-                }
-                @Html.ActionLink("Details", "Details", new { id = item.Id }) 
+                <div class="col">
+                    <div class="row-sm">
+                        @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-info" })
+                    </div>
+                    @if (User.Identity.Name == item.Creator || User.IsInRole("Admin") || User.IsInRole("Coadmin"))
+                    {
+                        <div class="row-sm">
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn edit btn-primary" })
+                        </div>
+                    }
+                </div>
 
             </td>
         </tr>
-    }
-
+        }
+    </tbody>
 </table>
-
-@Html.PagedListPager(Model, i => Url.Action("Index", "SelfTaugthEvents", new { i, search = Request.QueryString["search"] }))
+@Html.PagedListPager(Model, i => Url.Action("Index", "CultureEvents", new { i, search = Request.QueryString["search"] }))

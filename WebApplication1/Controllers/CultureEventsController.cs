@@ -140,40 +140,25 @@ namespace WebApplication1.Controllers
             return View(cultureEvent);
         }
 
-        // GET: CultureEvents/Delete/5
+        // POST: CultureEvents/Delete/
         [Authorize]
-        public async Task<ActionResult> Delete(int? id)
+        public async Task<ActionResult> Delete(string ids)
         {
-            if (id == null)
+            List<string> idss = ids.Split(',').ToList();
+            for (int i = 0; i < idss.Count - 1; i++)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                CultureEvent cultureEvent = await db.CultureEvent.FindAsync(Convert.ToInt32(idss.ElementAt(i)));
+                if (!cultureEvent.Creator.Equals(ControllerContext.HttpContext.User.Identity.Name) && !ControllerContext.HttpContext.User.IsInRole("Admin"))
+                {
+                    TempData["Message"] = "Invalid permissions!";
+                    return RedirectToAction("Index");
+                }
+                foreach (var item in await db.Comment.Where(x => x.EventId == cultureEvent.Id).ToListAsync())
+                {
+                    db.Comment.Remove(item);
+                }
+                db.CultureEvent.Remove(cultureEvent);
             }
-            CultureEvent cultureEvent = await db.CultureEvent.FindAsync(id);
-            if (cultureEvent == null)
-            {
-                return HttpNotFound();
-            }
-            if (ControllerContext.HttpContext.User.Identity.Name == cultureEvent.Creator
-                || ControllerContext.HttpContext.User.IsInRole("Admin")
-                || ControllerContext.HttpContext.User.IsInRole("Coadmin"))
-            {
-                return View(cultureEvent);
-            }
-            return RedirectToAction("Index");
-        }
-
-        // POST: CultureEvents/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<ActionResult> DeleteConfirmed(int id)
-        {
-            CultureEvent cultureEvent = await db.CultureEvent.FindAsync(id);
-            foreach (var item in await db.Comment.Where(x => x.EventId == cultureEvent.Id).ToListAsync())
-            {
-                db.Comment.Remove(item);
-            }
-            db.CultureEvent.Remove(cultureEvent);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }

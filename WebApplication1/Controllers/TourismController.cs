@@ -135,36 +135,25 @@ namespace WebApplication1.Controllers
             return View(tourism);
         }
 
-        // GET: Tourism/Delete/5
+        // POST: TourGuide/Delete/
         [Authorize]
-        public async Task<ActionResult> Delete(int? id)
+        public async Task<ActionResult> Delete(string ids)
         {
-            if (id == null)
+            List<string> idss = ids.Split(',').ToList();
+            for (int i = 0; i < idss.Count - 1; i++)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                Tourism tourism = await db.Tourism.FindAsync(Convert.ToInt32(idss.ElementAt(i)));
+                if (!tourism.Creator.Equals(ControllerContext.HttpContext.User.Identity.Name) && !ControllerContext.HttpContext.User.IsInRole("Admin"))
+                {
+                    TempData["Message"] = "Invalid permissions!";
+                    return RedirectToAction("Index");
+                }
+                foreach (var item in await db.Comment.Where(x => x.EventId == tourism.Id).ToListAsync())
+                {
+                    db.Comment.Remove(item);
+                }
+                db.Tourism.Remove(tourism);
             }
-            Tourism tourism = await db.Tourism.FindAsync(id);
-            if (tourism == null)
-            {
-                return HttpNotFound();
-            }
-            if (ControllerContext.HttpContext.User.Identity.Name == tourism.Creator
-                || ControllerContext.HttpContext.User.IsInRole("Admin")
-                || ControllerContext.HttpContext.User.IsInRole("Coadmin"))
-            {
-                return View(tourism);
-            }
-            return RedirectToAction("Index");
-        }
-
-        // POST: Tourism/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<ActionResult> DeleteConfirmed(int id)
-        {
-            Tourism tourism = await db.Tourism.FindAsync(id);
-            db.Tourism.Remove(tourism);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }

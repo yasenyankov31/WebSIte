@@ -145,43 +145,30 @@ namespace WebApplication1.Controllers
             return View(searchForVolunteer);
         }
 
-        // GET: SearchForVolunteers/Delete/5
+        // POST: SearchForVolunteers/Delete/
         [Authorize]
-        public async Task<ActionResult> Delete(int? id)
+        public async Task<ActionResult> Delete(string ids)
         {
-            if (id == null)
+            List<string> idss = ids.Split(',').ToList();
+            for (int i = 0; i < idss.Count - 1; i++)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                SearchForVolunteer searchForVolunteer = await db.SearchForVolunteer.FindAsync(Convert.ToInt32(idss.ElementAt(i)));
+                if (!searchForVolunteer.Creator.Equals(ControllerContext.HttpContext.User.Identity.Name) && !ControllerContext.HttpContext.User.IsInRole("Admin"))
+                {
+                    TempData["Message"] = "Invalid permissions!";
+                    return RedirectToAction("Index");
+                }
+                foreach (var item in await db.Comment.Where(x => x.EventId == searchForVolunteer.Id).ToListAsync())
+                {
+                    db.Comment.Remove(item);
+                }
+                db.SearchForVolunteer.Remove(searchForVolunteer);
             }
-            SearchForVolunteer searchForVolunteer = await db.SearchForVolunteer.FindAsync(id);
-            if (searchForVolunteer == null)
-            {
-                return HttpNotFound();
-            }
-            if (ControllerContext.HttpContext.User.Identity.Name == searchForVolunteer.Creator
-                || ControllerContext.HttpContext.User.IsInRole("Admin")
-                || ControllerContext.HttpContext.User.IsInRole("Coadmin"))
-            {
-                return View(searchForVolunteer);
-            }
-            return RedirectToAction("Index");
-        }
-
-        // POST: SearchForVolunteers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<ActionResult> DeleteConfirmed(int id)
-        {
-            SearchForVolunteer searchForVolunteer = await db.SearchForVolunteer.FindAsync(id);
-            foreach (var item in await db.Volunteers.Where(x=>x.EventId==id).ToListAsync())
-            {
-                db.Volunteers.Remove(item);
-            }
-            db.SearchForVolunteer.Remove(searchForVolunteer);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
+
+
         [Authorize]
         public async Task<ActionResult> AddVolunteer(int eventId,string username,string phonenumber)
         {

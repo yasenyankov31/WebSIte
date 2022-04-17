@@ -142,40 +142,26 @@ namespace WebApplication1.Controllers
             return View(sportEvent);
         }
 
-        // GET: SportEvents/Delete/5
-        [Authorize]
-        public async Task<ActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            SportEvent sportEvent = await db.SportEvent.FindAsync(id);
-            if (sportEvent == null)
-            {
-                return HttpNotFound();
-            }
-            if (ControllerContext.HttpContext.User.Identity.Name == sportEvent.Creator
-                || ControllerContext.HttpContext.User.IsInRole("Admin")
-                || ControllerContext.HttpContext.User.IsInRole("Coadmin"))
-            {
-                return View(sportEvent);
-            }
-            return RedirectToAction("Index");
-        }
 
-        // POST: SportEvents/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        // POST: SportEvents/Delete/
         [Authorize]
-        public async Task<ActionResult> DeleteConfirmed(int id)
+        public async Task<ActionResult> Delete(string ids)
         {
-            SportEvent sportEvent = await db.SportEvent.FindAsync(id);
-            foreach (var item in await db.Comment.Where(x => x.EventId == sportEvent.Id).ToListAsync())
+            List<string> idss = ids.Split(',').ToList();
+            for (int i = 0; i < idss.Count - 1; i++)
             {
-                db.Comment.Remove(item);
+                SportEvent sportEvent = await db.SportEvent.FindAsync(Convert.ToInt32(idss.ElementAt(i)));
+                if (!sportEvent.Creator.Equals(ControllerContext.HttpContext.User.Identity.Name) && !ControllerContext.HttpContext.User.IsInRole("Admin"))
+                {
+                    TempData["Message"] = "Invalid permissions!";
+                    return RedirectToAction("Index");
+                }
+                foreach (var item in await db.Comment.Where(x => x.EventId == sportEvent.Id).ToListAsync())
+                {
+                    db.Comment.Remove(item);
+                }
+                db.SportEvent.Remove(sportEvent);
             }
-            db.SportEvent.Remove(sportEvent);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
