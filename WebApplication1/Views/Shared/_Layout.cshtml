@@ -25,9 +25,9 @@
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li>@Html.ActionLink("Culture Events", "Index", "CultureEvents", null, new { @class = "nav-link text-white" })</li>
-                <li>@Html.ActionLink("SearchForVolunteers", "Index", "SearchForVolunteers", null, new { @class = "nav-link text-white" })</li>
-                <li>@Html.ActionLink("SelfTaugthEvents", "Index", "SelfTaugthEvents", null, new { @class = "nav-link text-white" })</li>
-                <li>@Html.ActionLink("SportEvents", "Index", "SportEvents", null, new { @class = "nav-link text-white" })</li>
+                <li>@Html.ActionLink("Search For Volunteers", "Index", "SearchForVolunteers", null, new { @class = "nav-link text-white" })</li>
+                <li>@Html.ActionLink("Self-Taught Events", "Index", "SelfTaugthEvents", null, new { @class = "nav-link text-white" })</li>
+                <li>@Html.ActionLink("Sport Events", "Index", "SportEvents", null, new { @class = "nav-link text-white" })</li>
                 <li>@Html.ActionLink("Tourism", "Index", "Tourism", null, new { @class = "nav-link text-white" })</li>
                 <li>@Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link text-white" })</li>
                 @if (User.IsInRole("Admin"))
@@ -83,7 +83,6 @@
             let data = $table.bootstrapTable('getSelections')
             var ids = "";
             data.forEach((item) => {
-                alert(item._id)
                 ids += item._id + ","
             })
             $('.btn-danger').attr('href', url.replace('{0}', ids))
